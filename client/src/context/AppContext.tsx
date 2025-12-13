@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Environment, Asset, Sensor, MovementLog } from '../types';
-import { mockEnvironments, mockAssets, mockSensors, mockMovementLogs } from '../lib/mockData';
+import { mockAssets, mockSensors, mockMovementLogs } from '../lib/mockData';
+import { getEnvironments, createEnvironment } from "../services/ambienteService";
+import { getAssets, createAsset } from "../services/patrimonioService";
 
 interface AppContextType {
   environments: Environment[];
@@ -9,12 +11,12 @@ interface AppContextType {
   movementLogs: MovementLog[];
   
   // Environment operations
-  addEnvironment: (environment: Omit<Environment, 'id' | 'createdAt'>) => void;
+  addEnvironment: (environment: Omit<Environment, 'id' | 'createdAt'>) => Promise<void>;
   updateEnvironment: (id: string, environment: Partial<Environment>) => void;
   deleteEnvironment: (id: string) => void;
   
   // Asset operations
-  addAsset: (asset: Omit<Asset, 'id' | 'createdAt'>) => void;
+  addAsset: (asset: Omit<Asset, 'id' | 'createdAt'>) => Promise<void>;
   updateAsset: (id: string, asset: Partial<Asset>) => void;
   deleteAsset: (id: string) => void;
   
@@ -37,19 +39,32 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [environments, setEnvironments] = useState<Environment[]>(mockEnvironments);
-  const [assets, setAssets] = useState<Asset[]>(mockAssets);
+  const [environments, setEnvironments] = useState<Environment[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [sensors, setSensors] = useState<Sensor[]>(mockSensors);
   const [movementLogs, setMovementLogs] = useState<MovementLog[]>(mockMovementLogs);
 
+  useEffect(() => {
+  async function fetchData() {
+    try {
+      const data = await getEnvironments();
+      setEnvironments(data);
+    } catch (error) {
+      console.error("Erro ao carregar ambientes:", error);
+    }
+  }
+
+  fetchData();
+}, []);
+
   // Environment operations
-  const addEnvironment = (environment: Omit<Environment, 'id' | 'createdAt'>) => {
-    const newEnvironment: Environment = {
-      ...environment,
-      id: `env-${Date.now()}`,
-      createdAt: new Date(),
-    };
-    setEnvironments([...environments, newEnvironment]);
+  const addEnvironment = async (environment: Omit<Environment, 'id' | 'createdAt'>) => {
+  try {
+    const saved = await createEnvironment(environment); // envia para API
+    setEnvironments(prev => [...prev, saved]); // adiciona retorno 
+      } catch (error) {
+    console.error("Erro ao criar ambiente:", error);
+    }
   };
 
   const updateEnvironment = (id: string, updatedData: Partial<Environment>) => {
@@ -63,13 +78,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // Asset operations
-  const addAsset = (asset: Omit<Asset, 'id' | 'createdAt'>) => {
-    const newAsset: Asset = {
-      ...asset,
-      id: `asset-${Date.now()}`,
-      createdAt: new Date(),
-    };
-    setAssets([...assets, newAsset]);
+  const addAsset = async (asset: Omit<Asset, 'id' | 'createdAt'>) => {
+  try {
+    const saved = await createAsset(asset); // envia para API
+    setAssets(prev => [...prev, saved]); // adiciona retorno 
+      } catch (error) {
+    console.error("Erro ao criar patrimônio:", error);
+    }
   };
 
   const updateAsset = (id: string, updatedData: Partial<Asset>) => {

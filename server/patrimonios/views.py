@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Patrimonio
+from .serializers import PatrimonioSerializer
 
-# Create your views here.
+class PatrimonioCreateView(generics.CreateAPIView):
+    queryset = Patrimonio.objects.all()
+    serializer_class = PatrimonioSerializer
