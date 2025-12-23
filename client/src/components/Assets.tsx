@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Plus, Pencil, Trash2, Package, Search, FileText } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Badge } from './ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 import { format } from 'date-fns';
@@ -61,7 +61,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
     setFormData({ epc: '', name: '', description: '', currentEnvironmentId: '' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.epc.trim() || !formData.name.trim() || !formData.currentEnvironmentId) {
@@ -82,11 +82,11 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
       updateAsset(editingAsset, formData);
       toast.success('Patrimônio atualizado com sucesso!');
     } else {
-      addAsset({ ...formData, lastReadAt: new Date() });
+      await addAsset({ ...formData, lastReadAt: new Date() });
       toast.success('Patrimônio cadastrado com sucesso!');
     }
 
-    handleCloseDialog();
+    setIsDialogOpen(false);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -246,7 +246,12 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
       </Card>
 
       {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+      <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open: boolean) => {
+            if (!open) handleCloseDialog();
+          }}
+        >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
@@ -293,7 +298,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
                 <Label htmlFor="environment">Ambiente Atual *</Label>
                 <Select
                   value={formData.currentEnvironmentId}
-                  onValueChange={(value) => setFormData({ ...formData, currentEnvironmentId: value })}
+                  onValueChange={(value: string) => setFormData({ ...formData, currentEnvironmentId: value })}
                 >
                   <SelectTrigger id="environment">
                     <SelectValue placeholder="Selecione o ambiente" />
