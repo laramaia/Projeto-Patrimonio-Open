@@ -28,6 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "projeto-patrimonio.onrender.com",
     ".onrender.com",
+    "127.0.0.1",
+    "localhost",
 ]
 
 

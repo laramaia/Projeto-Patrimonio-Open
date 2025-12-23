@@ -33,3 +33,14 @@ export async function getAssets(){
     const res = await api.get("patrimonios/");
     return res.data;
 }
+
+// PUT
+export async function updateAssetsApi(id: string, asset: any) {
+  const res = await api.put(`patrimonios/${id}/`, asset);
+  return res.data;
+}
+
+// DELETE
+export async function deleteAssetsApi(id: string) {
+  await api.delete(`patrimonios/${id}/`);
+}

@@ -4,11 +4,15 @@ from ambientes.views import (
     AmbienteListView,
     AmbienteRetrieveUpdateDestroyView,
 )
-from patrimonios.views import PatrimonioCreateView
+from patrimonios.views import (
+    PatrimonioCreateView,
+    PatrimonioListView
+)
 
 urlpatterns = [
     path('ambientes/', AmbienteListView.as_view(), name="listar-ambientes"),
     path('ambientes/criar/', AmbienteCreateView.as_view(), name='criar-ambientes'),
     path('ambientes/<int:pk>/', AmbienteRetrieveUpdateDestroyView.as_view(), name='detalhar-ambiente'),
     path('patrimonios/criar/', PatrimonioCreateView.as_view(), name='criar-patrimonios'),
+    path('patrimonios/', PatrimonioListView.as_view(), name='listar-patrimonios'),
 ]

@@ -17,12 +17,12 @@ export async function getEnvironments() {
 }
 
 // PUT
-export async function updateEnvironmentApi(id: string, environment: any) {
+export async function updateEnvironment(id: string, environment: any) {
   const res = await api.put(`ambientes/${id}/`, environment);
   return res.data;
 }
 
 // DELETE
-export async function deleteEnvironmentApi(id: string) {
+export async function deleteEnvironment(id: string) {
   await api.delete(`ambientes/${id}/`);
 }

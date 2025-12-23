@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Environment, Asset, Sensor, MovementLog } from '../types';
 import { mockAssets, mockSensors, mockMovementLogs } from '../lib/mockData';
-import { getEnvironments, createEnvironment } from "../services/ambienteService";
+import { getEnvironments, createEnvironment, updateEnvironment, deleteEnvironment } from "../services/ambienteService";
 import { getAssets, createAsset } from "../services/patrimonioService";
 
 interface AppContextType {
@@ -11,7 +11,7 @@ interface AppContextType {
   movementLogs: MovementLog[];
   
   // Environment operations
-  addEnvironment: (environment: Omit<Environment, 'id' | 'createdAt'>) => Promise<void>;
+  createEnvironment: (environment: Omit<Environment, 'id' | 'createdAt'>) => Promise<void>;
   updateEnvironment: (id: string, environment: Partial<Environment>) => void;
   deleteEnvironment: (id: string) => void;
   
@@ -58,7 +58,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 }, []);
 
   // Environment operations
-  const addEnvironment = async (environment: Omit<Environment, 'id' | 'createdAt'>) => {
+  const createEnvironmentState = async (environment: Omit<Environment, 'id' | 'createdAt'>) => {
   try {
     const saved = await createEnvironment(environment); // envia para API
     setEnvironments(prev => [...prev, saved]); // adiciona retorno 
@@ -67,14 +67,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const updateEnvironment = (id: string, updatedData: Partial<Environment>) => {
-    setEnvironments(environments.map(env => 
-      env.id === id ? { ...env, ...updatedData } : env
-    ));
+  const updateEnvironmentState = async (
+    id: string,
+    updatedData: Partial<Environment>
+  ) => {
+    try {
+      const updated = await updateEnvironment(id, updatedData);
+
+      setEnvironments(prev =>
+        prev.map(env =>
+          env.id === id ? { ...env, ...updated } : env
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar ambiente:", error);
+    }
   };
 
-  const deleteEnvironment = (id: string) => {
-    setEnvironments(environments.filter(env => env.id !== id));
+  const deleteEnvironmentState = async (id: string) => {
+    try {
+      await deleteEnvironment(id);
+
+      setEnvironments(prev =>
+        prev.filter(env => env.id !== id)
+      );
+    } catch (error) {
+      console.error("Erro ao deletar ambiente:", error);
+    }
   };
 
   // Asset operations
@@ -159,9 +178,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         assets,
         sensors,
         movementLogs,
-        addEnvironment,
-        updateEnvironment,
-        deleteEnvironment,
+        createEnvironment: createEnvironmentState,
+        updateEnvironment: updateEnvironmentState,
+        deleteEnvironment: deleteEnvironmentState,
         addAsset,
         updateAsset,
         deleteAsset,
