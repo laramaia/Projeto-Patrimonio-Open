@@ -45,17 +45,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [movementLogs, setMovementLogs] = useState<MovementLog[]>(mockMovementLogs);
 
   useEffect(() => {
-  async function fetchData() {
-    try {
-      const data = await getEnvironments();
-      setEnvironments(data);
-    } catch (error) {
-      console.error("Erro ao carregar ambientes:", error);
-    }
-  }
+    async function fetchInitialData() {
+      try {
+        const [environmentsData, assetsData] = await Promise.all([
+          getEnvironments(),
+          getAssets(),
+        ]);
 
-  fetchData();
-}, []);
+        setEnvironments(environmentsData);
+        setAssets(assetsData);
+      } catch (error) {
+        console.error("Erro ao carregar dados iniciais:", error);
+      }
+    }
+
+    fetchInitialData();
+  }, []);
 
   // Environment operations
   const createEnvironmentState = async (environment: Omit<Environment, 'id' | 'createdAt'>) => {
