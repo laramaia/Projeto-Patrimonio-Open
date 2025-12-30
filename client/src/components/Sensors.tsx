@@ -8,13 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Plus, Pencil, Trash2, Radio, ArrowRight, Power, PowerOff } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Badge } from './ui/badge';
 import { Switch } from './ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 
 export const Sensors: React.FC = () => {
-  const { environments, sensors, addSensor, updateSensor, deleteSensor, getEnvironmentById } = useApp();
+  const { environments, sensors, createSensor, updateSensor, deleteSensor, getEnvironmentById } = useApp();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSensor, setEditingSensor] = useState<string | null>(null);
@@ -34,8 +34,8 @@ export const Sensors: React.FC = () => {
       if (sensor) {
         setFormData({
           name: sensor.name,
-          exitEnvironmentId: sensor.exitEnvironmentId,
-          entryEnvironmentId: sensor.entryEnvironmentId,
+          exitEnvironmentId: sensor.exit_to_ambiente,
+          entryEnvironmentId: sensor.entry_to_ambiente,
           isActive: sensor.isActive,
         });
         setEditingSensor(sensorId);
@@ -70,7 +70,7 @@ export const Sensors: React.FC = () => {
       updateSensor(editingSensor, formData);
       toast.success('Sensor atualizado com sucesso!');
     } else {
-      addSensor(formData);
+      createSensor(formData);
       toast.success('Sensor cadastrado com sucesso!');
     }
 
@@ -130,8 +130,8 @@ export const Sensors: React.FC = () => {
                 </TableRow>
               ) : (
                 sensors.map((sensor) => {
-                  const exitEnv = getEnvironmentById(sensor.exitEnvironmentId);
-                  const entryEnv = getEnvironmentById(sensor.entryEnvironmentId);
+                  const exitEnv = getEnvironmentById(sensor.exit_to_ambiente);
+                  const entryEnv = getEnvironmentById(sensor.entry_to_ambiente);
                   
                   return (
                     <TableRow key={sensor.id}>
@@ -231,7 +231,7 @@ export const Sensors: React.FC = () => {
                 <Label htmlFor="exit-environment">Ambiente de Saída *</Label>
                 <Select
                   value={formData.exitEnvironmentId}
-                  onValueChange={(value) => setFormData({ ...formData, exitEnvironmentId: value })}
+                  onValueChange={(value: string) => setFormData({ ...formData, exitEnvironmentId: value })}
                 >
                   <SelectTrigger id="exit-environment">
                     <SelectValue placeholder="Selecione o ambiente de origem" />
@@ -254,7 +254,7 @@ export const Sensors: React.FC = () => {
                 <Label htmlFor="entry-environment">Ambiente de Entrada *</Label>
                 <Select
                   value={formData.entryEnvironmentId}
-                  onValueChange={(value) => setFormData({ ...formData, entryEnvironmentId: value })}
+                  onValueChange={(value: string) => setFormData({ ...formData, entryEnvironmentId: value })}
                 >
                   <SelectTrigger id="entry-environment">
                     <SelectValue placeholder="Selecione o ambiente de destino" />
@@ -273,7 +273,7 @@ export const Sensors: React.FC = () => {
                 <Switch
                   id="is-active"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  onCheckedChange={(checked: boolean) => setFormData({ ...formData, isActive: checked })}
                 />
                 <Label htmlFor="is-active" className="cursor-pointer">
                   Sensor ativo

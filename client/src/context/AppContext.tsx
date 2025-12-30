@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Environment, Asset, Sensor, MovementLog } from '../types';
-import { mockAssets, mockSensors, mockMovementLogs } from '../lib/mockData';
+import { mockMovementLogs } from '../lib/mockData';
 import { getEnvironments, createEnvironment, updateEnvironment, deleteEnvironment } from "../services/ambienteService";
-import { getAssets, createAsset } from "../services/patrimonioService";
+import { getAssets, createAsset, deleteAsset } from "../services/patrimonioService";
+import { createSensor } from '../services/sensorService';
 
 interface AppContextType {
   environments: Environment[];
@@ -21,7 +22,7 @@ interface AppContextType {
   deleteAsset: (id: string) => void;
   
   // Sensor operations
-  addSensor: (sensor: Omit<Sensor, 'id' | 'createdAt'>) => void;
+  createSensor: (sensor: Omit<Sensor, 'id' | 'createdAt'>) => Promise<void>;
   updateSensor: (id: string, sensor: Partial<Sensor>) => void;
   deleteSensor: (id: string) => void;
   
@@ -41,7 +42,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [sensors, setSensors] = useState<Sensor[]>(mockSensors);
+  const [sensors, setSensors] = useState<Sensor[]>([]);
   const [movementLogs, setMovementLogs] = useState<MovementLog[]>(mockMovementLogs);
 
   useEffect(() => {
@@ -117,18 +118,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     ));
   };
 
-  const deleteAsset = (id: string) => {
-    setAssets(assets.filter(asset => asset.id !== id));
+  const deleteAssetState = async (id: string) => {
+    try {
+      await deleteAsset(id);
+
+      setAssets(prev =>
+        prev.filter(asset => asset.id !== id)
+      );
+    } catch (error) {
+      console.error("Erro ao deletar patrimônio:", error);
+    }
   };
 
   // Sensor operations
-  const addSensor = (sensor: Omit<Sensor, 'id' | 'createdAt'>) => {
-    const newSensor: Sensor = {
-      ...sensor,
-      id: `sensor-${Date.now()}`,
-      createdAt: new Date(),
-    };
-    setSensors([...sensors, newSensor]);
+  const createSensorState = async (sensor: Omit<Sensor, 'id' | 'createdAt'>) => {
+  try {
+    const saved = await createSensor(sensor); 
+    setSensors(prev => [...prev, saved]); 
+      } catch (error) {
+    console.error("Erro ao criar sensor:", error);
+    }
   };
 
   const updateSensor = (id: string, updatedData: Partial<Sensor>) => {
@@ -152,8 +161,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     // Update asset's current environment and last read time
     updateAsset(log.assetId, {
-      currentEnvironmentId: log.toEnvironmentId,
-      lastReadAt: new Date(),
+      current_ambiente_id: log.toEnvironmentId,
+      last_seen: new Date(),
     });
   };
 
@@ -174,7 +183,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     sensors.find(sensor => sensor.id === id);
 
   const getAssetsByEnvironment = (environmentId: string) => 
-    assets.filter(asset => asset.currentEnvironmentId === environmentId);
+    assets.filter(asset => asset.current_ambiente_id === environmentId);
 
   return (
     <AppContext.Provider
@@ -188,8 +197,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteEnvironment: deleteEnvironmentState,
         addAsset,
         updateAsset,
-        deleteAsset,
-        addSensor,
+        deleteAsset : deleteAssetState,
+        createSensor : createSensorState,
         updateSensor,
         deleteSensor,
         addMovementLog,

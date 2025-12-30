@@ -9,20 +9,19 @@ export interface Environment {
 
 export interface Asset {
   id: string;
-  epc: string; // RFID tag EPC (unique)
+  epc: string;
   name: string;
   description?: string;
-  currentEnvironmentId: string;
-  lastReadAt?: Date;
+  current_ambiente_id: string; 
+  last_seen?: Date;          
   createdAt: Date;
 }
 
 export interface Sensor {
   id: string;
   name: string;
-  exitEnvironmentId: string;
-  entryEnvironmentId: string;
-  isActive: boolean;
+  exit_to_ambiente: string; 
+  entry_to_ambiente: string; 
   createdAt: Date;
 }
 

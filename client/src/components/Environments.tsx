@@ -7,12 +7,12 @@ import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Plus, Pencil, Trash2, MapPin } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Badge } from './ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 
 export const Environments: React.FC = () => {
-  const { environments, assets, addEnvironment, updateEnvironment, deleteEnvironment, getAssetsByEnvironment } = useApp();
+  const { environments, assets, createEnvironment, updateEnvironment, deleteEnvironment, getAssetsByEnvironment } = useApp();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEnvironment, setEditingEnvironment] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export const Environments: React.FC = () => {
       updateEnvironment(editingEnvironment, formData);
       toast.success('Ambiente atualizado com sucesso!');
     } else {
-      addEnvironment(formData);
+      createEnvironment(formData);
       toast.success('Ambiente criado com sucesso!');
     }
 

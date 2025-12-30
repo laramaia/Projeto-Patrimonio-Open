@@ -33,7 +33,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
     epc: '',
     name: '',
     description: '',
-    currentEnvironmentId: '',
+    current_ambiente_id: '',
   });
 
   const handleOpenDialog = (assetId?: string) => {
@@ -44,12 +44,12 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
           epc: asset.epc,
           name: asset.name,
           description: asset.description || '',
-          currentEnvironmentId: asset.currentEnvironmentId,
+          current_ambiente_id: asset.current_ambiente_id,
         });
         setEditingAsset(assetId);
       }
     } else {
-      setFormData({ epc: '', name: '', description: '', currentEnvironmentId: '' });
+      setFormData({ epc: '', name: '', description: '', current_ambiente_id: '' });
       setEditingAsset(null);
     }
     setIsDialogOpen(true);
@@ -58,13 +58,13 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingAsset(null);
-    setFormData({ epc: '', name: '', description: '', currentEnvironmentId: '' });
+    setFormData({ epc: '', name: '', description: '', current_ambiente_id: '' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.epc.trim() || !formData.name.trim() || !formData.currentEnvironmentId) {
+    if (!formData.epc.trim() || !formData.name.trim() || !formData.current_ambiente_id) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -82,7 +82,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
       updateAsset(editingAsset, formData);
       toast.success('Patrimônio atualizado com sucesso!');
     } else {
-      await addAsset({ ...formData, lastReadAt: new Date() });
+      await addAsset({ ...formData, last_seen: new Date() });
       toast.success('Patrimônio cadastrado com sucesso!');
     }
 
@@ -110,7 +110,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
       asset.epc.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesEnvironment = 
-      filterEnvironment === 'all' || asset.currentEnvironmentId === filterEnvironment;
+      filterEnvironment === 'all' || asset.current_ambiente_id === filterEnvironment;
     
     return matchesSearch && matchesEnvironment;
   });
@@ -185,7 +185,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
                 </TableRow>
               ) : (
                 filteredAssets.map((asset) => {
-                  const environment = getEnvironmentById(asset.currentEnvironmentId);
+                  const environment = getEnvironmentById(asset.current_ambiente_id);
                   
                   return (
                     <TableRow key={asset.id} className="cursor-pointer hover:bg-slate-50">
@@ -206,8 +206,8 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
                         </Badge>
                       </TableCell>
                       <TableCell onClick={() => onNavigate('asset-detail', asset.id)} className="text-slate-600">
-                        {asset.lastReadAt
-                          ? format(new Date(asset.lastReadAt), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                        {asset.last_seen
+                          ? format(new Date(asset.last_seen), "dd/MM/yyyy HH:mm", { locale: ptBR })
                           : 'Nunca lido'}
                       </TableCell>
                       <TableCell>
@@ -297,8 +297,8 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
               <div className="space-y-2">
                 <Label htmlFor="environment">Ambiente Atual *</Label>
                 <Select
-                  value={formData.currentEnvironmentId}
-                  onValueChange={(value: string) => setFormData({ ...formData, currentEnvironmentId: value })}
+                  value={formData.current_ambiente_id}
+                  onValueChange={(value: string) => setFormData({ ...formData, current_ambiente_id: value })}
                 >
                   <SelectTrigger id="environment">
                     <SelectValue placeholder="Selecione o ambiente" />

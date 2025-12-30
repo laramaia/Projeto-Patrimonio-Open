@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'api',
     'ambientes',
     'patrimonios',
+    'sensores',
 ]
 
 MIDDLEWARE = [

@@ -40,7 +40,7 @@ export const AssetDetail: React.FC<AssetDetailProps> = ({ assetId, onBack }) => 
     );
   }
 
-  const currentEnvironment = getEnvironmentById(asset.currentEnvironmentId);
+  const currentEnvironment = getEnvironmentById(asset.current_ambiente_id);
   
   // Get all movements for this asset
   const assetMovements = movementLogs
@@ -93,8 +93,8 @@ export const AssetDetail: React.FC<AssetDetailProps> = ({ assetId, onBack }) => 
               <div>
                 <p className="text-slate-500 text-sm">Última Leitura</p>
                 <p className="text-slate-900 mt-1">
-                  {asset.lastReadAt
-                    ? format(new Date(asset.lastReadAt), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                  {asset.last_seen
+                    ? format(new Date(asset.last_seen), "dd/MM/yyyy HH:mm", { locale: ptBR })
                     : 'Nunca lido'}
                 </p>
               </div>
