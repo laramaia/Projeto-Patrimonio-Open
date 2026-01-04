@@ -7,10 +7,9 @@ import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from './ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Plus, Pencil, Trash2, Radio, ArrowRight, Power, PowerOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Radio, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from './ui/badge';
-import { Switch } from './ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 
 export const Sensors: React.FC = () => {
@@ -25,7 +24,6 @@ export const Sensors: React.FC = () => {
     name: '',
     exitEnvironmentId: '',
     entryEnvironmentId: '',
-    isActive: true,
   });
 
   const handleOpenDialog = (sensorId?: string) => {
@@ -36,12 +34,11 @@ export const Sensors: React.FC = () => {
           name: sensor.name,
           exitEnvironmentId: sensor.exit_to_ambiente,
           entryEnvironmentId: sensor.entry_to_ambiente,
-          isActive: sensor.isActive,
         });
         setEditingSensor(sensorId);
       }
     } else {
-      setFormData({ name: '', exitEnvironmentId: '', entryEnvironmentId: '', isActive: true });
+      setFormData({ name: '', exitEnvironmentId: '', entryEnvironmentId: '' });
       setEditingSensor(null);
     }
     setIsDialogOpen(true);
@@ -50,12 +47,12 @@ export const Sensors: React.FC = () => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingSensor(null);
-    setFormData({ name: '', exitEnvironmentId: '', entryEnvironmentId: '', isActive: true });
+    setFormData({ name: '', exitEnvironmentId: '', entryEnvironmentId: '' });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.exitEnvironmentId || !formData.entryEnvironmentId) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
@@ -66,11 +63,17 @@ export const Sensors: React.FC = () => {
       return;
     }
 
+    const sensorData = {
+      name: formData.name,
+      exit_to_ambiente: formData.exitEnvironmentId,
+      entry_to_ambiente: formData.entryEnvironmentId,
+    };
+
     if (editingSensor) {
-      updateSensor(editingSensor, formData);
+      updateSensor(editingSensor, sensorData);
       toast.success('Sensor atualizado com sucesso!');
     } else {
-      createSensor(formData);
+      createSensor(sensorData);
       toast.success('Sensor cadastrado com sucesso!');
     }
 
@@ -91,10 +94,6 @@ export const Sensors: React.FC = () => {
     setDeleteDialogOpen(false);
   };
 
-  const handleToggleActive = (sensorId: string, isActive: boolean) => {
-    updateSensor(sensorId, { isActive });
-    toast.success(`Sensor ${isActive ? 'ativado' : 'desativado'} com sucesso!`);
-  };
 
   return (
     <div className="space-y-6">
@@ -117,14 +116,13 @@ export const Sensors: React.FC = () => {
               <TableRow>
                 <TableHead>Nome do Sensor</TableHead>
                 <TableHead>Fluxo de Movimentação</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sensors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={3} className="text-center py-8 text-slate-500">
                     Nenhum sensor cadastrado
                   </TableCell>
                 </TableRow>
@@ -149,30 +147,6 @@ export const Sensors: React.FC = () => {
                           <ArrowRight className="w-4 h-4 text-slate-400" />
                           <Badge variant="outline" className="bg-blue-100 text-blue-800">
                             {entryEnv?.name || 'Desconhecido'}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={sensor.isActive}
-                            onCheckedChange={(checked) => handleToggleActive(sensor.id, checked)}
-                          />
-                          <Badge
-                            variant={sensor.isActive ? 'default' : 'secondary'}
-                            className={sensor.isActive ? 'bg-green-600' : ''}
-                          >
-                            {sensor.isActive ? (
-                              <>
-                                <Power className="w-3 h-3 mr-1" />
-                                Ativo
-                              </>
-                            ) : (
-                              <>
-                                <PowerOff className="w-3 h-3 mr-1" />
-                                Inativo
-                              </>
-                            )}
                           </Badge>
                         </div>
                       </TableCell>
@@ -269,16 +243,6 @@ export const Sensors: React.FC = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <Switch
-                  id="is-active"
-                  checked={formData.isActive}
-                  onCheckedChange={(checked: boolean) => setFormData({ ...formData, isActive: checked })}
-                />
-                <Label htmlFor="is-active" className="cursor-pointer">
-                  Sensor ativo
-                </Label>
-              </div>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleCloseDialog}>

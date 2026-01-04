@@ -35,9 +35,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
       <aside
         className={`fixed top-0 left-0 h-full bg-slate-900 text-white transition-all duration-300 z-40 ${
           sidebarOpen ? 'w-64' : 'w-0'
-        } overflow-hidden`}
+        } overflow-hidden flex flex-col`}
       >
-        <div className="p-6">
+        <div className="p-6 flex-1">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1>Sistema de Gerenciamento</h1>
@@ -49,7 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;
-              
+
               return (
                 <button
                   key={item.id}
@@ -66,6 +66,17 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
               );
             })}
           </nav>
+        </div>
+
+        {/* Footer with Logo */}
+        <div className="p-6 border-t border-slate-800">
+          <div className="flex items-center justify-center">
+            <img
+              src="/logo-SGPA.png"
+              alt="Logo SGPA"
+              className="w-32 h-auto object-contain"
+            />
+          </div>
         </div>
       </aside>
 
