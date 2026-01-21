@@ -13,7 +13,10 @@ export async function createEnvironment(data: { name: string; description?: stri
 // GET ALL
 export async function getEnvironments() {
   const res = await api.get("ambientes/");
-  return res.data;
+  return res.data.map((env: any) => ({
+    ...env,
+    id: String(env.id),
+  }));
 }
 
 // PUT

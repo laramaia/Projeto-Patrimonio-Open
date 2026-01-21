@@ -12,6 +12,8 @@ from patrimonios.views import (
 
 from sensores.views import (
     SensorCreateView,
+    SensorListView,
+    SensorRetrieveUpdateDestroyView,
 )
 
 urlpatterns = [
@@ -21,5 +23,7 @@ urlpatterns = [
     path('patrimonios/criar/', PatrimonioCreateView.as_view(), name='criar-patrimonios'),
     path('patrimonios/', PatrimonioListView.as_view(), name='listar-patrimonios'),
     path('patrimonios/<int:pk>/', PatrimonioRetrieveUpdateDestroyView.as_view(), name='detalhar-patrimonio'),
+    path('sensores/', SensorListView.as_view(), name='listar-sensores'),
     path('sensores/criar/', SensorCreateView.as_view(), name='criar-sensores'),
+    path('sensores/<int:pk>/', SensorRetrieveUpdateDestroyView.as_view(), name='detalhar-sensor'),
 ]

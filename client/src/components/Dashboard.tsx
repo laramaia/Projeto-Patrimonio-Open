@@ -75,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <CardContent>
             <div className="text-slate-900">{sensors.length}</div>
             <p className="text-slate-500 text-xs mt-1">
-              {sensors.filter(s => s.isActive).length} ativos
+              Monitorando ambientes
             </p>
           </CardContent>
         </Card>

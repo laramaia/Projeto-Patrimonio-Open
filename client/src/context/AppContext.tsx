@@ -3,7 +3,7 @@ import { Environment, Asset, Sensor, MovementLog } from '../types';
 import { mockMovementLogs } from '../lib/mockData';
 import { getEnvironments, createEnvironment, updateEnvironment, deleteEnvironment } from "../services/ambienteService";
 import { getAssets, createAsset, deleteAsset } from "../services/patrimonioService";
-import { createSensor } from '../services/sensorService';
+import { createSensor, getSensors, deleteSensor as deleteSensorApi, updateSensor as updateSensorApi } from '../services/sensorService';
 
 interface AppContextType {
   environments: Environment[];
@@ -48,13 +48,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     async function fetchInitialData() {
       try {
-        const [environmentsData, assetsData] = await Promise.all([
+        const [environmentsData, assetsData, sensorsData] = await Promise.all([
           getEnvironments(),
           getAssets(),
+          getSensors(),
         ]);
 
         setEnvironments(environmentsData);
         setAssets(assetsData);
+        setSensors(sensorsData);
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       }
@@ -140,14 +142,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const updateSensor = (id: string, updatedData: Partial<Sensor>) => {
-    setSensors(sensors.map(sensor => 
-      sensor.id === id ? { ...sensor, ...updatedData } : sensor
-    ));
+  const updateSensorState = async (id: string, updatedData: Partial<Sensor>) => {
+    try {
+      await updateSensorApi(id, updatedData);
+      setSensors(prev => prev.map(sensor =>
+        sensor.id === id ? { ...sensor, ...updatedData } : sensor
+      ));
+    } catch (error) {
+      console.error("Erro ao atualizar sensor:", error);
+    }
   };
 
-  const deleteSensor = (id: string) => {
-    setSensors(sensors.filter(sensor => sensor.id !== id));
+  const deleteSensorState = async (id: string) => {
+    try {
+      await deleteSensorApi(id);
+      setSensors(prev => prev.filter(sensor => sensor.id !== id));
+    } catch (error) {
+      console.error("Erro ao deletar sensor:", error);
+    }
   };
 
   // Movement log operations
@@ -199,8 +211,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateAsset,
         deleteAsset : deleteAssetState,
         createSensor : createSensorState,
-        updateSensor,
-        deleteSensor,
+        updateSensor: updateSensorState,
+        deleteSensor: deleteSensorState,
         addMovementLog,
         updateMovementLog,
         getEnvironmentById,
