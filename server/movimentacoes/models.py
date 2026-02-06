@@ -3,7 +3,7 @@ from patrimonios.models import Patrimonio
 from ambientes.models import Ambiente
 from sensores.models import Sensor
 
-class Movimentações(models.Model):
+class Movimentacao(models.Model):
     patrimonio = models.ForeignKey(Patrimonio, on_delete=models.CASCADE, related_name='movimentos')
     from_ambiente = models.ForeignKey(Ambiente, on_delete=models.CASCADE, related_name='movimentos_saida')
     to_ambiente = models.ForeignKey(Ambiente, on_delete=models.CASCADE, related_name='movimentos_entrada')
@@ -12,3 +12,6 @@ class Movimentações(models.Model):
 
     def __str__(self):
         return f"{self.patrimonio} -> {self.to_ambiente} via {self.sensor}"
+    
+    class Meta:
+        db_table = 'movement_log'

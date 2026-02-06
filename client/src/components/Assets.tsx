@@ -33,7 +33,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
     epc: '',
     name: '',
     description: '',
-    current_ambiente_id: '',
+    current_ambiente: '',
   });
 
   const handleOpenDialog = (assetId?: string) => {
@@ -44,12 +44,12 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
           epc: asset.epc,
           name: asset.name,
           description: asset.description || '',
-          current_ambiente_id: asset.current_ambiente_id,
+          current_ambiente: asset.current_ambiente,
         });
         setEditingAsset(assetId);
       }
     } else {
-      setFormData({ epc: '', name: '', description: '', current_ambiente_id: '' });
+      setFormData({ epc: '', name: '', description: '', current_ambiente: '' });
       setEditingAsset(null);
     }
     setIsDialogOpen(true);
@@ -58,13 +58,13 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingAsset(null);
-    setFormData({ epc: '', name: '', description: '', current_ambiente_id: '' });
+    setFormData({ epc: '', name: '', description: '', current_ambiente: '' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.epc.trim() || !formData.name.trim() || !formData.current_ambiente_id) {
+    if (!formData.epc.trim() || !formData.name.trim() || !formData.current_ambiente) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
@@ -110,7 +110,7 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
       asset.epc.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesEnvironment = 
-      filterEnvironment === 'all' || asset.current_ambiente_id === filterEnvironment;
+      filterEnvironment === 'all' || asset.current_ambiente === filterEnvironment;
     
     return matchesSearch && matchesEnvironment;
   });
@@ -177,70 +177,88 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAssets.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                    Nenhum patrimônio encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredAssets.map((asset) => {
-                  const environment = getEnvironmentById(asset.current_ambiente_id);
-                  
-                  return (
-                    <TableRow key={asset.id} className="cursor-pointer hover:bg-slate-50">
-                      <TableCell onClick={() => onNavigate('asset-detail', asset.id)}>
-                        <div className="flex items-center gap-3">
-                          <Package className="w-5 h-5 text-blue-600" />
-                          <div>
-                            <p className="text-slate-900">{asset.name}</p>
-                            <Badge variant="outline" className="text-xs mt-1">
-                              {asset.epc}
-                            </Badge>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell onClick={() => onNavigate('asset-detail', asset.id)}>
-                        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-                          {environment?.name || 'Desconhecido'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell onClick={() => onNavigate('asset-detail', asset.id)} className="text-slate-600">
-                        {asset.last_seen
-                          ? format(new Date(asset.last_seen), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                          : 'Nunca lido'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onNavigate('asset-detail', asset.id)}
-                            title="Ver histórico"
-                          >
-                            <FileText className="w-4 h-4 text-green-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(asset.id)}
-                          >
-                            <Pencil className="w-4 h-4 text-blue-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(asset.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
+  {filteredAssets.length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={4} className="text-center py-8 text-slate-500">
+        Nenhum patrimônio encontrado
+      </TableCell>
+    </TableRow>
+  ) : (
+    filteredAssets.map((asset) => {
+      const environment = getEnvironmentById(asset.current_ambiente);
+
+      return (
+        <TableRow key={asset.id} className="cursor-pointer hover:bg-slate-50">
+          <TableCell onClick={() => onNavigate('asset-detail', asset.id)}>
+            <div className="flex items-center gap-3">
+              <Package className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-slate-900">{asset.name}</p>
+                <Badge variant="outline" className="text-xs mt-1">
+                  {asset.epc}
+                </Badge>
+              </div>
+            </div>
+          </TableCell>
+
+          <TableCell onClick={() => onNavigate('asset-detail', asset.id)}>
+            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+              {environment?.name || 'Desconhecido'}
+            </Badge>
+          </TableCell>
+
+          <TableCell
+            onClick={() => onNavigate('asset-detail', asset.id)}
+            className="text-slate-600"
+          >
+            {asset.last_seen
+              ? format(new Date(asset.last_seen), "dd/MM/yyyy HH:mm", { locale: ptBR })
+              : 'Nunca lido'}
+          </TableCell>
+
+          <TableCell>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onNavigate('asset-detail', asset.id);
+                }}
+                title="Ver histórico"
+              >
+                <FileText className="w-4 h-4 text-green-600" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleOpenDialog(asset.id);
+                }}
+              >
+                <Pencil className="w-4 h-4 text-blue-600" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleDeleteClick(asset.id);
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </Button>
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    })
+  )}
+</TableBody>
+
           </Table>
         </CardContent>
       </Card>
@@ -297,8 +315,8 @@ export const Assets: React.FC<AssetsProps> = ({ onNavigate }) => {
               <div className="space-y-2">
                 <Label htmlFor="environment">Ambiente Atual *</Label>
                 <Select
-                  value={formData.current_ambiente_id}
-                  onValueChange={(value: string) => setFormData({ ...formData, current_ambiente_id: value })}
+                  value={formData.current_ambiente}
+                  onValueChange={(value: string) => setFormData({ ...formData, current_ambiente: value })}
                 >
                   <SelectTrigger id="environment">
                     <SelectValue placeholder="Selecione o ambiente" />

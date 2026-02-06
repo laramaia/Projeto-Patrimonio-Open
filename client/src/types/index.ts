@@ -12,7 +12,7 @@ export interface Asset {
   epc: string;
   name: string;
   description?: string;
-  current_ambiente_id: string; 
+  current_ambiente: string; 
   last_seen?: Date;          
   createdAt: Date;
 }

@@ -10,7 +10,6 @@ class PatrimonioListView(generics.ListAPIView):
     queryset = Patrimonio.objects.all()
     serializer_class = PatrimonioSerializer
 
-
 class PatrimonioRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Patrimonio.objects.all()
     serializer_class = PatrimonioSerializer

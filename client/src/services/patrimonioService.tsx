@@ -3,7 +3,7 @@ import api from "./api";
 import { Asset } from "../types";
 
 // POST
-export async function createAsset(data: { epc: string; name: string; current_ambiente_id: string }) {
+export async function createAsset(data: { epc: string; name: string; current_ambiente: string }) {
   const res = await api.post("patrimonios/criar/", data);
   return res.data; // já retorna o objeto criado
 }

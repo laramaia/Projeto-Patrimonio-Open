@@ -6,3 +6,6 @@ class Ambiente(models.Model):
 
     def __str__(self):
         return f"{self.name or 'Sem Nome'}"
+    
+    class Meta:
+        db_table = "ambientes"
