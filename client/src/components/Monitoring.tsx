@@ -6,14 +6,51 @@ import { Badge } from './ui/badge';
 import { Activity, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { toast } from 'sonner'
 
 interface MonitoringProps {
   onNavigate: (page: string, assetId?: string) => void;
 }
 
 export const Monitoring: React.FC<MonitoringProps> = ({ onNavigate }) => {
-  const { movementLogs, getAssetById, getEnvironmentById, getSensorById } = useApp();
+  const { 
+    movementLogs, 
+    getAssetById, 
+    getEnvironmentById, 
+    getSensorById, 
+    addMovementLog,
+    assets,
+    sensors,
+  } = useApp();
+
   const [lastUpdate, setLastUpdate] = useState(new Date());
+
+  const handleSimularLeitura = async () => {
+    try {
+      if (assets.length === 0 || sensors.length === 0) {
+        toast.error("Dados insuficientes", {
+          description: "Cadastre pelo menos um patrimônio e um sensor para simular."
+        });
+        return;
+      }
+
+      // Simula o primeiro patrimônio passando pelo primeiro sensor
+      const assetParaSimular = assets[0];
+      const sensorParaSimular = sensors[0];
+
+      toast.info("Enviando sinal RFID...");
+
+      await addMovementLog({
+        epc: assetParaSimular.epc,
+        sensor: sensorParaSimular.id
+      });
+
+      // O toast de sucesso já deve estar disparando dentro do addMovementLog (no AppContext)
+    } catch (error) {
+      toast.error("Falha na simulação");
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,6 +113,20 @@ export const Monitoring: React.FC<MonitoringProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-6">
+
+      <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-800">Painel de Monitoramento</h2>
+        <p className="text-xs text-slate-500">Simule ou visualize leituras em tempo real</p>
+      </div>
+      <button
+        onClick={handleSimularLeitura}
+        className="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm border border-slate-700"
+      >
+        Executar Simulação de Leitura
+      </button>
+    </div>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="bg-white border-slate-200 border-l-4 border-l-blue-500">
@@ -158,10 +209,10 @@ export const Monitoring: React.FC<MonitoringProps> = ({ onNavigate }) => {
                   </TableRow>
                 ) : (
                   sortedMovements.map((log, index) => {
-                    const asset = getAssetById(log.assetId);
-                    const sensor = getSensorById(log.sensorId);
-                    const fromEnv = getEnvironmentById(log.fromEnvironmentId);
-                    const toEnv = getEnvironmentById(log.toEnvironmentId);
+                    const asset = getAssetById(log.patrimonio);
+                    const sensor = getSensorById(log.sensor);
+                    const fromEnv = getEnvironmentById(log.from_ambiente);
+                    const toEnv = getEnvironmentById(log.to_ambiente);
                     const isRecent = index < 3;
 
                     return (

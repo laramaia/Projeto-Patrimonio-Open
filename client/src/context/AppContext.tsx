@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Environment, Asset, Sensor, MovementLog } from '../types';
-import { mockMovementLogs } from '../lib/mockData';
+import { getMovementLogs } from "../services/movimentacaoService";
 import { getEnvironments, createEnvironment, updateEnvironment, deleteEnvironment } from "../services/ambienteService";
 import { getAssets, createAsset, deleteAsset } from "../services/patrimonioService";
 import { createSensor, getSensors, deleteSensor as deleteSensorApi, updateSensor as updateSensorApi } from '../services/sensorService';
+import { createMovement } from "../services/movimentacaoService";
+import { toast } from "sonner";
 
 interface AppContextType {
   environments: Environment[];
@@ -27,7 +29,7 @@ interface AppContextType {
   deleteSensor: (id: string) => void;
   
   // Movement log operations
-  addMovementLog: (log: Omit<MovementLog, 'id' | 'timestamp'>) => void;
+  addMovementLog: (data: { epc: string; sensor: string }) => Promise<void>;
   updateMovementLog: (id: string, log: Partial<MovementLog>) => void;
 
   // Utilities
@@ -43,20 +45,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [sensors, setSensors] = useState<Sensor[]>([]);
-  const [movementLogs, setMovementLogs] = useState<MovementLog[]>(mockMovementLogs);
+  const [movementLogs, setMovementLogs] = useState<MovementLog[]>([]);
 
   useEffect(() => {
     async function fetchInitialData() {
       try {
-        const [environmentsData, assetsData, sensorsData] = await Promise.all([
+        const [environmentsData, assetsData, sensorsData, movementsData] = await Promise.all([
           getEnvironments(),
           getAssets(),
           getSensors(),
+          getMovementLogs(),
         ]);
 
         setEnvironments(environmentsData);
         setAssets(assetsData);
         setSensors(sensorsData);
+        setMovementLogs(movementsData)
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
       }
@@ -163,19 +167,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // Movement log operations
-  const addMovementLog = (log: Omit<MovementLog, 'id' | 'timestamp'>) => {
-    const newLog: MovementLog = {
-      ...log,
-      id: `log-${Date.now()}`,
-      timestamp: new Date(),
-    };
-    setMovementLogs([newLog, ...movementLogs]);
+  const addMovementLog = async (data: { epc: string; sensor: string }) => {
+    try {
+      const savedLog = await createMovement(data);
+      setMovementLogs(prev => [savedLog, ...prev]);
 
-    // Update asset's current environment and last read time
-    updateAsset(log.assetId, {
-      current_ambiente_id: log.toEnvironmentId,
-      last_seen: new Date(),
-    });
+      toast.success("Movimentação registrada", {
+        description: `EPC ${data.epc} detectado no sensor ${savedLog.sensor}.`,
+      });
+
+      // Sincroniza o estado do patrimônio no Front-end 
+      updateAsset(savedLog.patrimonio, {
+        current_ambiente: savedLog.to_ambiente,
+        last_seen: new Date(),
+      }
+    );
+
+    } catch (error) {
+      console.error("Erro ao registrar movimentação:", error);
+      toast.error("Erro na leitura", {
+        description: "O EPC lido não consta na base de dados.",
+      });
+    }
   };
 
   const updateMovementLog = (id: string, updatedData: Partial<MovementLog>) => {
@@ -195,7 +208,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     sensors.find(sensor => sensor.id === id);
 
   const getAssetsByEnvironment = (environmentId: string) => 
-    assets.filter(asset => asset.current_ambiente_id === environmentId);
+    assets.filter(asset => asset.current_ambiente === environmentId);
 
   return (
     <AppContext.Provider
