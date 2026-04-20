@@ -1,4 +1,4 @@
-# Projeto Patrimônio: Gestão e Monitoramento de Ativos via RFID
+# 🏷️ Sistema de Gestão Patrimonial com RFID
 Este projeto é a camada de software responsável por processar, armazenar e visualizar as leituras enviadas por sensores RFID. Ele atua como o ponto central de controle, 
 recebendo os sinais EPC (Electronic Product Code) e traduzindo-os em um histórico de movimentação organizado por ambientes e patrimônios.
 
@@ -60,3 +60,13 @@ npm install
 # Inicie a aplicação
 npm run dev
 ```
+
+## Demonstração
+### Visão de Ativos
+<img width="1903" height="590" alt="image" src="https://github.com/user-attachments/assets/21041a4c-12cf-4d43-b7c7-43088b54981e" />
+
+### Zonas de Monitoramento
+<img width="1904" height="584" alt="image" src="https://github.com/user-attachments/assets/58106ae6-1392-4956-87ff-4368522bb5a7" />
+
+### Pontos de Leitura RFID
+<img width="1911" height="508" alt="image" src="https://github.com/user-attachments/assets/ae273c3f-99f1-4fb0-b1f4-8a67c7cb502b" />
