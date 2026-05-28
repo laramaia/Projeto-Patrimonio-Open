@@ -16,6 +16,11 @@ from sensores.views import (
     SensorRetrieveUpdateDestroyView,
 )
 
+from movimentacoes.views import (
+    MovimentacaoCreateView,
+    MovimentacaoListView
+)
+
 urlpatterns = [
     path('ambientes/', AmbienteListView.as_view(), name="listar-ambientes"),
     path('ambientes/criar/', AmbienteCreateView.as_view(), name='criar-ambientes'),
@@ -26,4 +31,6 @@ urlpatterns = [
     path('sensores/', SensorListView.as_view(), name='listar-sensores'),
     path('sensores/criar/', SensorCreateView.as_view(), name='criar-sensores'),
     path('sensores/<int:pk>/', SensorRetrieveUpdateDestroyView.as_view(), name='detalhar-sensor'),
+    path('movimentacoes/', MovimentacaoListView.as_view(), name='listar-movimentacao'),
+    path('movimentacoes/criar/', MovimentacaoCreateView.as_view(), name='criar-movimentacoes'),
 ]

@@ -32,7 +32,6 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,6 +49,7 @@ INSTALLED_APPS = [
     'ambientes',
     'patrimonios',
     'sensores',
+    'movimentacoes',
 ]
 
 MIDDLEWARE = [
